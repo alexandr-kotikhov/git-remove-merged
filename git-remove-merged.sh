@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 #
 # Author: Alexandr Kotikhov
-# options: -r
-#
 #
 
 set -e
