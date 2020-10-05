@@ -127,9 +127,9 @@ for refname in "${BRANCHES[@]}"; do
       fi
     else
       if [[ "$origin" == "" ]]; then
-        echo "emulation> git branch -d $branch --no-verify"
+        echo "> git branch -d $branch --no-verify"
       else
-        echo "emulation> git push $origin --delete $branch --no-verify"
+        echo "> git push $origin --delete $branch --no-verify"
       fi
     fi
 
@@ -137,17 +137,19 @@ for refname in "${BRANCHES[@]}"; do
 
 done
 
+echo ""
 if [[ "$DRY_RUN" == 'NO' ]]; then
-  echo "\nRemoved branches:"
+  echo "Removed branches:"
 else
-  echo "\nBranches to remove:"
+  echo "Branches to remove:"
 fi
 for branch in "${DELETED[@]}"; do
   echo "  ${branch}"
 done
 echo "Total ${#DELETED[@]}."
 
-echo "\nMerged into '${BASE}' branches but still not deleted:"
+echo ""
+echo "Merged into '${BASE}' branches but still not deleted:"
 for branch in "${NOT_DELETED[@]}"; do
   echo "  ${branch}"
 done
