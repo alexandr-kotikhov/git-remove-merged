@@ -68,6 +68,7 @@ echo "${BRANCHES[@]}"
 echo "Total ${#BRANCHES[@]} merged branches. Processing..."
 
 NOT_DELETED=()
+DELETED=()
 for refname in "${BRANCHES[@]}"; do
 
   echo ""
@@ -115,6 +116,7 @@ for refname in "${BRANCHES[@]}"; do
   else
 
     echo "Removing the branch '$refname'..."
+    DELETED+=("$branch")
     if [[ "$DRY_RUN" == 'NO' ]]; then
       if [[ "$origin" == "" ]]; then
         git branch -d "$branch" --no-verify
@@ -135,8 +137,18 @@ for refname in "${BRANCHES[@]}"; do
 
 done
 
+if [[ "$DRY_RUN" == 'NO' ]]; then
+  echo "\nRemoved branches:"
+else
+  echo "\nBranches to remove:"
+fi
+for branch in "${DELETED[@]}"; do
+  echo "  ${branch}"
+done
+echo "Total ${#DELETED[@]}."
 
-echo "Merged into '${BASE}' branches but still not deleted:"
+echo "\nMerged into '${BASE}' branches but still not deleted:"
 for branch in "${NOT_DELETED[@]}"; do
   echo "  ${branch}"
 done
+echo "Total ${#NOT_DELETED[@]}."
