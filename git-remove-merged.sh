@@ -110,7 +110,7 @@ for refname in "${BRANCHES[@]}"; do
   commit_description=$(git log -1 ${commit_hash} --format='%aI, %aN, %s')
 
   if [[ ! "$common_commit" == "" ]]; then
-    NOT_DELETED+=("$branch - не старая: $commit_description")
+    NOT_DELETED+=("$branch - isn't old: $commit_description")
     echo "  skipped, this branch isn't that old."
   else
 
