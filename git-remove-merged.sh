@@ -22,6 +22,28 @@ function showHelp() {
     echo "Example: git-remove-merged.sh -r -b master -i 'XC-.*' | tee git-remove-merged.log"
 }
 
+
+function dump() {
+  echo ""
+  if [[ "$DRY_RUN" == 'NO' ]]; then
+    echo "Removed branches:"
+  else
+    echo "Branches to remove:"
+  fi
+  for branch in "${DELETED[@]}"; do
+    echo "  ${branch}"
+  done
+  echo "Total ${#DELETED[@]}."
+
+  echo ""
+  echo "Merged into '${BASE}' branches but still not deleted:"
+  for branch in "${NOT_DELETED[@]}"; do
+    echo "  ${branch}"
+  done
+  echo "Total ${#NOT_DELETED[@]}."
+}
+
+
 while getopts "i:e:b:d:m:s:rh" opt; do
   case ${opt} in
     r ) DRY_RUN='NO';;
@@ -66,6 +88,8 @@ echo "Merged branches:"
 echo "${BRANCHES[@]}"
 
 echo "Total ${#BRANCHES[@]} merged branches. Processing..."
+
+set +e
 
 NOT_DELETED=()
 DELETED=()
@@ -116,14 +140,25 @@ for refname in "${BRANCHES[@]}"; do
   else
 
     echo "Removing the branch '$refname'..."
-    DELETED+=("$branch")
     if [[ "$DRY_RUN" == 'NO' ]]; then
       if [[ "$origin" == "" ]]; then
         git branch -d "$branch"
-        echo "The local branch is successfuly removed."
+        if [ $? -eq 0 ]; then
+          DELETED+=("$branch")
+          echo "The local branch is successfuly removed."
+        else  
+          NOT_DELETED+=("$branch - ERROR: Cannot delete the local branch.")
+          echo "Cannot delete the local branch."
+        fi
       else
         git push "$origin" --delete "$branch" --no-verify
-        echo "The branch is successfuly removed from the server."
+        if [ $? -eq 0 ]; then
+          DELETED+=("$branch")
+          echo "The branch is successfuly removed from the server."
+        else  
+          NOT_DELETED+=("$branch - ERROR: Cannot delete the branch from the server.")
+          echo "Cannot delete the branch from the server."
+        fi
       fi
     else
       if [[ "$origin" == "" ]]; then
@@ -137,20 +172,4 @@ for refname in "${BRANCHES[@]}"; do
 
 done
 
-echo ""
-if [[ "$DRY_RUN" == 'NO' ]]; then
-  echo "Removed branches:"
-else
-  echo "Branches to remove:"
-fi
-for branch in "${DELETED[@]}"; do
-  echo "  ${branch}"
-done
-echo "Total ${#DELETED[@]}."
-
-echo ""
-echo "Merged into '${BASE}' branches but still not deleted:"
-for branch in "${NOT_DELETED[@]}"; do
-  echo "  ${branch}"
-done
-echo "Total ${#NOT_DELETED[@]}."
+dump
