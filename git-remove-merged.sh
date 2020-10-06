@@ -119,7 +119,7 @@ for refname in "${BRANCHES[@]}"; do
     DELETED+=("$branch")
     if [[ "$DRY_RUN" == 'NO' ]]; then
       if [[ "$origin" == "" ]]; then
-        git branch -d "$branch" --no-verify
+        git branch -d "$branch"
         echo "The local branch is successfuly removed."
       else
         git push "$origin" --delete "$branch" --no-verify
@@ -127,7 +127,7 @@ for refname in "${BRANCHES[@]}"; do
       fi
     else
       if [[ "$origin" == "" ]]; then
-        echo "> git branch -d $branch --no-verify"
+        echo "> git branch -d $branch"
       else
         echo "> git push $origin --delete $branch --no-verify"
       fi
